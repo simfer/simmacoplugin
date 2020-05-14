@@ -1,0 +1,76 @@
+ID: SimmacoPlugin
+_schema-version: '2.1'
+parameters:
+  deploy_mode: html5-repo
+version: 0.0.1
+modules:
+  - name: simmacoplugin-approuter
+    type: approuter.nodejs
+    path: simmacoplugin-approuter
+    parameters:
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: SimmacoPlugin_html5_repo_runtime
+      - name: uaa_SimmacoPlugin
+      - name: portal_resources_SimmacoPlugin
+  - name: SimmacoPlugin_ui_deployer
+    type: com.sap.html5.application-content
+    path: SimmacoPlugin_ui_deployer
+    requires:
+      - name: SimmacoPlugin_html5_repo_host
+    build-parameters:
+      requires:
+        - name: SimmacoPlugin-ui
+          artifacts:
+            - './*'
+          target-path: resources/SimmacoPlugin-ui
+  - name: SimmacoPlugin-ui
+    type: html5
+    path: SimmacoPlugin-ui
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
+      supported-platforms: []
+      build-result: dist
+  - name: SimmacoPlugin-flp
+    type: com.sap.portal.content
+    path: SimmacoPlugin-flp
+    parameters:
+      stack: cflinuxfs3
+      memory: 128M
+      buildpack: 'https://github.com/cloudfoundry/nodejs-buildpack/releases/download/v1.6.39/nodejs-buildpack-cflinuxfs3-v1.6.39.zip'
+    requires:
+      - name: portal_resources_SimmacoPlugin
+      - name: uaa_SimmacoPlugin
+      - name: SimmacoPlugin_html5_repo_host
+      - name: SimmacoPlugin_ui_deployer
+resources:
+  - name: SimmacoPlugin_html5_repo_runtime
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: SimmacoPlugin_html5_repo_host
+    parameters:
+      service-plan: app-host
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: uaa_SimmacoPlugin
+    parameters:
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
+    type: org.cloudfoundry.managed-service
+  - name: dest_SimmacoPlugin
+    parameters:
+      service-plan: lite
+      service: destination
+    type: org.cloudfoundry.managed-service
+  - name: portal_resources_SimmacoPlugin
+    parameters:
+      service-plan: standard
+      service: portal
+    type: org.cloudfoundry.managed-service
