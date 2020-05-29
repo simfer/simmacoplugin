@@ -1,7 +1,8 @@
 ID: SimmacoPlugin
-_schema-version: '2.1'
+_schema-version: '3.1'
 parameters:
   deploy_mode: html5-repo
+  enable-parallel-deployment: true
 version: 0.0.1
 modules:
   - name: simmacoplugin-approuter
